@@ -1,1 +1,1 @@
-Sentiment Analysis with LSTMs and BERT classifier
+Sentiment Analysis with LSTMs and BERT classifier.

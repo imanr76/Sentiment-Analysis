@@ -105,7 +105,7 @@ def create_vocab(text, tokenizer, lemmatizer, unk_token, pad_token):
     vocabulary.set_default_index(1)
     return vocabulary
 
-def process_reviews(review, tokenizer, lemmatizer, vocabulary, max_len):
+def process_reviews(review, tokenizer, lemmatizer, vocabulary, max_len, pad = True):
     """
     Performs the following tasks on each review text:
         - cleaning the text
@@ -126,6 +126,8 @@ def process_reviews(review, tokenizer, lemmatizer, vocabulary, max_len):
         Vocabulary object correspoding tokens and indices.
     max_len : int
         Maximum allowed length of a product review.
+    pad : boolean
+        Either to pad the input or not.
 
     Returns
     -------
@@ -137,7 +139,8 @@ def process_reviews(review, tokenizer, lemmatizer, vocabulary, max_len):
     review_tokenized = tokenizer(review_cleaned)
     lemmatized_text = [lemmatizer.lemmatize(word) for word in review_tokenized]
     review_processed = vocabulary(lemmatized_text)
-    if len(review_processed) < max_len:
+
+    if pad and len(review_processed) < max_len:
         review_processed.extend([0] * (max_len - len(review_processed)))
     elif len(review_processed) > max_len:
         review_processed = review_processed[:max_len]
@@ -184,20 +187,29 @@ class dataset(Dataset):
     
     def __getitem__(self, index):
         return self.data[index]
-#------------------------------------------------------------------------------
-# Parameter definitions
-
-# Maximum review text sequence length
-max_len = 500
-
-# Fraction of training data of all data
-train_size = 0.8
-# Fraction of validation data of all data
-validation_size = 0.15
-# Fraction of test data of all data
-test_size = 0.05
 
 def process_data(max_len = 500, train_size = 0.8, validation_size = 0.15, test_size = 0.05):
+    """
+    Downloads the data from the S# bucket on AWS, transforms it, balances it, creates a vocbulary from the
+    review texts, converts the text into sequences of indices, divides the data into 
+    training, validation and test sets and save them as PyTorch datsets. 
+
+    Parameters
+    ----------
+    max_len : int, optional
+        Maximum review text sequence length. The default is 500.
+    train_size : int, optional
+        Fraction of training data of all data. The default is 0.8.
+    validation_size : int, optional
+        Fraction of validation data of all data. The default is 0.15.
+    test_size : int, optional
+        Fraction of test data of all data. The default is 0.05.
+
+    Returns
+    -------
+    None.
+
+    """
     #------------------------------------------------------------------------------
     # Reading and transforming the dataset
     
@@ -252,8 +264,8 @@ def process_data(max_len = 500, train_size = 0.8, validation_size = 0.15, test_s
         os.mkdir("./data/test")
     
     # Dividing the data into train, validation and test sets
-    training_data, temp_data = train_test_split(data_transformed_balanced, test_size = 1 - train_size, random_state = 5)
-    validation_data, test_data = train_test_split(temp_data, test_size = test_size / validation_size, random_state = 5)
+    training_data, temp_data = train_test_split(data_transformed_balanced, test_size = 1 - train_size, random_state = 10)
+    validation_data, test_data = train_test_split(temp_data, test_size = test_size / validation_size, random_state = 10)
     
     # Saving the train, validation and test datasets
     training_data.to_csv("./data/training/womens_clothing_ecommerce_reviews_balanced_training.csv", index = False)
@@ -311,7 +323,20 @@ def process_data(max_len = 500, train_size = 0.8, validation_size = 0.15, test_s
     torch.save(validaton_dataset, "./data/validation/validation_dataset.pth")
     torch.save(test_dataset, "./data/test/test_dataset.pth")
 
+
+
 #------------------------------------------------------------------------------
 # Running the script directly
 if __name__ == "__main__":
+    
+    # Maximum review text sequence length
+    max_len = 500
+    # Fraction of training data of all data
+    train_size = 0.8
+    # Fraction of validation data of all data
+    validation_size = 0.15
+    # Fraction of test data of all data
+    test_size = 0.05
+    
+    # Preprocessing the data
     process_data(max_len,  train_size, validation_size, test_size)

@@ -22,7 +22,7 @@ if __name__ == "__main__":
     num_layers = 1
     dropout = 0
     learning_rate = 0.01
-    epochs = 100
+    epochs = 10
     threshold = 0.5
     
     print("\nData processing started\n")

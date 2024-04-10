@@ -37,17 +37,19 @@ def predict(model, tokenizer, lemmatizer, reviews, threshold, max_len):
         DESCRIPTION.
 
     """
-    # Reading the vocabulary 
-    vocabulary = torch.load("./models/vocabulary.pth")
-    predictions = []
-    for review in reviews:
-        review_processed = process_reviews(review, tokenizer, lemmatizer, vocabulary, max_len)
-        prediction = torch.where(model(torch.tensor(review_processed).reshape(1, -1)) >= threshold, torch.tensor(1), torch.tensor(0))
-        if prediction == 1:
-            predictions.append("Positive")
-        else:
-            predictions.append("Negative")
-        print(f"Review : '{review}'\nPredicted Sentiment : {predictions[-1]}\n")
+    with torch.no_grad():
+        model.eval()
+        # Reading the vocabulary 
+        vocabulary = torch.load("./models/vocabulary.pth")
+        predictions = []
+        for review in reviews:
+            review_processed = process_reviews(review, tokenizer, lemmatizer, vocabulary, max_len)
+            prediction = torch.where(model(torch.tensor(review_processed).reshape(1, -1)) >= threshold, torch.tensor(1), torch.tensor(0))
+            if prediction == 1:
+                predictions.append("Positive")
+            else:
+                predictions.append("Negative")
+            print(f"Review : '{review}'\nPredicted Sentiment : {predictions[-1]}\n")
     return predictions
 
 #------------------------------------------------------------------------------

@@ -265,7 +265,7 @@ def process_data(max_len = 500, train_size = 0.8, validation_size = 0.15, test_s
     
     # Dividing the data into train, validation and test sets
     training_data, temp_data = train_test_split(data_transformed_balanced, test_size = 1 - train_size, random_state = 10)
-    validation_data, test_data = train_test_split(temp_data, test_size = test_size / validation_size, random_state = 10)
+    validation_data, test_data = train_test_split(temp_data, test_size = test_size / (test_size + validation_size), random_state = 10)
     
     # Saving the train, validation and test datasets
     training_data.to_csv("./data/training/womens_clothing_ecommerce_reviews_balanced_training.csv", index = False)

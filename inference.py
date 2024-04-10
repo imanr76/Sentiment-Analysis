@@ -44,7 +44,7 @@ def predict(model, tokenizer, lemmatizer, reviews, threshold, max_len):
         predictions = []
         for review in reviews:
             review_processed = process_reviews(review, tokenizer, lemmatizer, vocabulary, max_len)
-            prediction = torch.where(model(torch.tensor(review_processed).reshape(1, -1)) >= threshold, torch.tensor(1), torch.tensor(0))
+            prediction = torch.where(model.sigmoid(model(torch.tensor(review_processed).reshape(1, -1))) >= threshold, torch.tensor(1), torch.tensor(0))
             if prediction == 1:
                 predictions.append("Positive")
             else:
@@ -62,6 +62,6 @@ if __name__ == "__main__":
     max_len = 500
     model = torch.load(os.path.join("./models", os.listdir("./models")[-2]))
     
-    reviews =  ["i hate it", "it was too loose" ,"This is a nice computer, I love using it and i will recommend you to buy it as soon as possible"]
+    reviews =  ["i hated it", "it was too loose" ,"This is a nice computer, I love using it and i will recommend you to buy it as soon as possible"]
     
     predictions = predict(model, word_tokenize, WordNetLemmatizer(), reviews, threshold, max_len)

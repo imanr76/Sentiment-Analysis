@@ -1,8 +1,0 @@
-epoch : 1, training loss : 0.7030, training accuracy : 49.7%
-epoch : 1, validation loss : 0.6950, validation accuracy : 50.7%
-
-
-
-Time it took to train the model: 18.5s
-
-test set loss : 1.156, test set accuracy : 53.1%
